@@ -14,15 +14,18 @@ import moment from "moment";
 
 type Props = {
   listData: DocumentData;
+  setOpenChat: (t: boolean) => void;
 };
 
-const Contact = ({ listData }: Props) => {
+const Contact = ({ listData, setOpenChat }: Props) => {
   const { id } = useAuth();
   const { changeFriend, changeMessages } = useContacts();
 
   const handleSelect = async () => {
     const mixedId = [id, listData.id].sort().join("-");
     const res = await getDoc(doc(db, "chats", mixedId));
+
+    setOpenChat(true);
 
     if (!res.exists()) {
       await setDoc(doc(db, "chats", mixedId), {
@@ -62,7 +65,7 @@ const Contact = ({ listData }: Props) => {
         primary={listData?.fullName || emailName(listData?.email)}
         secondary={formatDate(listData.lastVisit)}
       />
-      <Badge sx={mainStyles.costumBadge} color="secondary" badgeContent="5" />
+      <Badge sx={mainStyles.costumBadge} color="secondary" badgeContent={0} />
     </ListItemButton>
   );
 };

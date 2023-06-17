@@ -28,7 +28,7 @@ const MainChat = () => {
 
   useEffect(() => {
     ref.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  });
 
   const sendMessage = async (e: React.MouseEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -44,6 +44,7 @@ const MainChat = () => {
     } catch (error) {
       console.log(error);
     }
+    setCurrMessage("");
   };
 
   useEffect(() => {

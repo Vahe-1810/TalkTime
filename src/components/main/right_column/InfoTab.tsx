@@ -10,7 +10,7 @@ import { useTSelector } from "@hooks/typedHooks";
 import { messageState } from "@store/slicers/messageSlice";
 import moment from "moment";
 
-const InfoTab = ({ open, setOpen }: TypeOpen) => {
+const InfoTab = ({ open, setOpen }: { open: boolean; setOpen: (a: boolean) => void }) => {
   const friend = useTSelector(messageState).currentFriendInfo;
 
   return (

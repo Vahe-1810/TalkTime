@@ -22,7 +22,11 @@ const inputProps = {
   },
 };
 
-const Header = ({ setPeople }: { setPeople: (u: DocumentData[]) => void }) => {
+type Props = {
+  setPeople: (u: DocumentData[]) => void;
+};
+
+const Header = ({ setPeople }: Props) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [open, setOpen] = useState(false);
   const { photoURL, fullName, email } = useAuth();

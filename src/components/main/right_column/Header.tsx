@@ -1,5 +1,5 @@
-import { Call, MoreVert, Search } from "@mui/icons-material";
-import { Avatar, Box, IconButton } from "@mui/material";
+import { ArrowBack, Call, MoreVert, Search } from "@mui/icons-material";
+import { Avatar, Box, IconButton, useMediaQuery } from "@mui/material";
 import { ListItem, Menu } from "@mui/material";
 import { ListItemAvatar, ListItemText } from "@mui/material";
 import { mainStyles } from "../styles";
@@ -9,11 +9,13 @@ import InfoTab from "./InfoTab";
 import { TypeOpen } from "@tps/type";
 import { useTSelector } from "@hooks/typedHooks";
 import { messageState } from "@store/slicers/messageSlice";
+import { theme } from "@theme/mui-theme";
 
-const Header = ({ open, setOpen }: TypeOpen) => {
+const Header = ({ open, setOpen, setOpenChat }: TypeOpen) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [anchor, setAnchor] = useState<null | HTMLElement>(null);
   const friend = useTSelector(messageState).currentFriendInfo;
+  const phoneSize = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleOpen = (e: React.MouseEvent<HTMLButtonElement>) => {
     setAnchor(e.currentTarget);
@@ -25,12 +27,21 @@ const Header = ({ open, setOpen }: TypeOpen) => {
     setMenuOpen(false);
   };
 
+  const handleGoBack = () => {
+    setOpenChat(false);
+  };
+
   return (
     <>
       <Box sx={mainStyles.contactHeader}>
         <ListItem>
+          {phoneSize && (
+            <IconButton onClick={handleGoBack}>
+              <ArrowBack />
+            </IconButton>
+          )}
           <IconButton disableRipple>
-            <ListItemAvatar>
+            <ListItemAvatar sx={{ display: "flex", alignItems: "center" }}>
               <Avatar src={friend?.photoURL || ""} />
             </ListItemAvatar>
           </IconButton>

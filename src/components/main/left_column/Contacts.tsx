@@ -9,9 +9,10 @@ import { useTSelector } from "@hooks/typedHooks";
 
 type Props = {
   people: DocumentData[] | null;
+  setOpenChat: (T: boolean) => void;
 };
 
-const Contacts = ({ people }: Props) => {
+const Contacts = ({ people, setOpenChat }: Props) => {
   const { contacts } = useTSelector(messageState);
 
   return (
@@ -20,12 +21,12 @@ const Contacts = ({ people }: Props) => {
         {!!people?.length &&
           people.map(person => (
             <Fragment key={person.id}>
-              <Contact listData={person} />
+              <Contact listData={person} setOpenChat={setOpenChat} />
               <Divider />
             </Fragment>
           ))}
         {contacts.map((cnt, i) => (
-          <Contact key={i} listData={cnt} />
+          <Contact key={i} listData={cnt} setOpenChat={setOpenChat} />
         ))}
       </List>
     </Paper>

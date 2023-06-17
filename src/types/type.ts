@@ -26,6 +26,7 @@ export interface ISignup extends ISignin {
 export type TypeOpen = {
   open: boolean;
   setOpen: (prop: boolean) => void;
+  setOpenChat: (b: boolean) => void;
 };
 
 export interface messageType {

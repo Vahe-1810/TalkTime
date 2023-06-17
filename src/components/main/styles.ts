@@ -6,17 +6,16 @@ export const mainStyles = {
     width: "100%",
   },
   leftSideContainer: {
-    display: "flex",
     justifyContent: "start",
     flexDirection: "column",
     alignItems: "center",
-    width: "25%",
+    width: { md: "25%", xs: "100%" },
     height: "100%",
     background: "#212121",
     borderRight: "1px solid #2c2c2c",
   },
   contacts: {
-    width: "75%",
+    width: { md: "75%", xs: "100%" },
     height: "calc(100vh - 56px)",
   },
   header: {
