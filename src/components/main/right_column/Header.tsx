@@ -6,13 +6,11 @@ import { mainStyles } from "../styles";
 import moment from "moment";
 import { useState } from "react";
 import InfoTab from "./InfoTab";
-import { useAuth } from "@hooks/authHook";
 import { TypeOpen } from "@tps/type";
 import { useTSelector } from "@hooks/typedHooks";
 import { messageState } from "@store/slicers/messageSlice";
 
 const Header = ({ open, setOpen }: TypeOpen) => {
-  const { email } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [anchor, setAnchor] = useState<null | HTMLElement>(null);
   const friend = useTSelector(messageState).currentFriendInfo;
