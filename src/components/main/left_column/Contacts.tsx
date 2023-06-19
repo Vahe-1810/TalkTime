@@ -1,4 +1,4 @@
-import { Divider } from "@mui/material";
+import { CircularProgress, Divider } from "@mui/material";
 import { Paper, List } from "@mui/material";
 import { mainStyles } from "../styles";
 import { DocumentData } from "firebase/firestore";
@@ -13,7 +13,9 @@ type Props = {
 };
 
 const Contacts = ({ people, setOpenChat }: Props) => {
-  const { contacts } = useTSelector(messageState);
+  const { contacts, loading } = useTSelector(messageState);
+
+  if (loading) return <CircularProgress />;
 
   return (
     <Paper sx={mainStyles.paper}>
@@ -21,13 +23,14 @@ const Contacts = ({ people, setOpenChat }: Props) => {
         {!!people?.length &&
           people.map(person => (
             <Fragment key={person.id}>
-              <Contact listData={person} setOpenChat={setOpenChat} />
+              <Contact listData={{ userInfo: person }} setOpenChat={setOpenChat} />
               <Divider />
             </Fragment>
           ))}
-        {contacts.map((cnt, i) => (
-          <Contact key={i} listData={cnt} setOpenChat={setOpenChat} />
-        ))}
+        {!!contacts?.length &&
+          [...contacts]
+            .sort((a, b) => b?.date - a?.date)
+            .map((cnt, i) => <Contact key={i} listData={cnt} setOpenChat={setOpenChat} />)}
       </List>
     </Paper>
   );

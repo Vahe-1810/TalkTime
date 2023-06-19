@@ -4,11 +4,11 @@ import Main from "@components/main/Main";
 import { useAuth } from "@hooks/authHook";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useEffect } from "react";
-import { useAuthActions, useContacts } from "@hooks/actionsHook";
+import { useAuthActions } from "@hooks/actionsHook";
 import { onAuthStateChanged } from "firebase/auth";
 import { toggleUser } from "@utils/settingUser";
 import { auth } from "@fb";
-import { LinearProgress } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 
 const AuthRoutes = [
   {
@@ -22,20 +22,17 @@ const AuthRoutes = [
 ];
 
 const AppRoutes = () => {
-  const { isAuth } = useAuth();
-  const { fetchContacts } = useContacts();
-  const { loading } = useAuth();
+  const { isAuth, loading } = useAuth();
   const { setUser } = useAuthActions();
 
   useEffect(() => {
     onAuthStateChanged(auth, user => {
       setUser(toggleUser(user));
     });
-    isAuth && fetchContacts();
     //eslint-disable-next-line
   }, [isAuth]);
 
-  if (loading) return <LinearProgress />;
+  if (loading) return <CircularProgress variant="indeterminate" size={100} />;
 
   return (
     <Routes>

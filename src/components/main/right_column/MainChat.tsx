@@ -8,7 +8,8 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useTSelector } from "@hooks/typedHooks";
 import { messageState } from "@store/slicers/messageSlice";
 import { IMessage } from "@tps/type";
-import { Timestamp, arrayUnion, doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { Timestamp, arrayUnion, doc } from "firebase/firestore";
+import { onSnapshot, serverTimestamp, updateDoc } from "firebase/firestore";
 import { useAuth } from "@hooks/authHook";
 import { db } from "@fb";
 import { useContacts } from "@hooks/actionsHook";
@@ -19,19 +20,16 @@ const MainChat = () => {
   const { messagesData, currentFriendInfo } = useTSelector(messageState);
   const { messages } = messagesData;
   const { id } = useAuth();
-  const { changeMessages } = useContacts();
+  const ref = useRef();
+  const { changeMessages, fetchContacts } = useContacts();
   const mixedId = useMemo(
-    () => [id, currentFriendInfo?.id]?.sort().join("-"),
+    () => [id, currentFriendInfo?.id]?.sort().join(""),
     [currentFriendInfo?.id, id]
   );
-  const ref = useRef();
-
-  useEffect(() => {
-    ref.current?.scrollIntoView({ behavior: "smooth" });
-  });
 
   const sendMessage = async (e: React.MouseEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!currMessage) return;
     try {
       mixedId &&
         (await updateDoc(doc(db, "chats", mixedId), {
@@ -44,65 +42,88 @@ const MainChat = () => {
     } catch (error) {
       console.log(error);
     }
+
+    await updateDoc(doc(db, "userChats", id), {
+      [mixedId + ".lastMessage"]: {
+        text: currMessage,
+      },
+      [mixedId + ".date"]: serverTimestamp(),
+    });
+
+    await updateDoc(doc(db, "userChats", currentFriendInfo?.id), {
+      [mixedId + ".lastMessage"]: {
+        text: currMessage,
+      },
+      [mixedId + ".date"]: serverTimestamp(),
+    });
+
     setCurrMessage("");
   };
 
   useEffect(() => {
     const onSub = onSnapshot(doc(db, "chats", mixedId), doc => {
       if (doc.exists()) {
-        const { chatCreated, messages, ...other } = doc.data();
-
+        const { messages } = doc.data();
         const timedMessages = messages.map((msg: IMessage) => ({
           ...msg,
           date: moment(msg.date.toDate()).fromNow(),
         })); // Timestump.now() to date
 
-        const date = moment(chatCreated.toDate()).format("YYYY-MM-DD"); // server-timestump to date
-
-        changeMessages({ ...other, date, messages: timedMessages });
+        changeMessages({ messages: timedMessages });
       }
     });
+    const onCntsSub = onSnapshot(doc(db, "userChats", id), doc => {
+      doc.exists() && fetchContacts(doc.data());
+    });
 
-    return () => onSub();
+    return () => {
+      onCntsSub();
+      onSub();
+    };
     // eslint-disable-next-line
   }, [mixedId]);
 
   return (
     <Box sx={mainStyles.chatBox}>
-      <Box sx={mainStyles.chat} ref={ref}>
-        {messages?.map((msg: IMessage) => {
-          return (
-            <Message
-              key={Math.random()}
-              text={msg.message}
-              sender={msg.sender === id}
-              date={msg.date}
+      {currentFriendInfo && (
+        <>
+          <Box sx={mainStyles.chat} ref={ref}>
+            {messages &&
+              [...messages]?.map((msg: IMessage) => {
+                return (
+                  <Message
+                    key={Math.random()}
+                    text={msg.message}
+                    sender={msg.sender === id}
+                    date={msg.date}
+                  />
+                );
+              })}
+          </Box>
+          <Box component="form" onSubmit={sendMessage} sx={mainStyles.messageField}>
+            <TextField
+              value={currMessage}
+              multiline
+              sx={mainStyles.input}
+              onChange={e => setCurrMessage(e.target.value)}
+              variant="outlined"
+              InputProps={{
+                sx: {
+                  borderRadius: "15px",
+                  fontSize: "20px",
+                  color: "#fff",
+                },
+                endAdornment: (
+                  <IconButton type="submit">
+                    <SendOutlined />
+                  </IconButton>
+                ),
+              }}
+              placeholder="Message"
             />
-          );
-        })}
-      </Box>
-      <Box component="form" onSubmit={sendMessage} sx={mainStyles.messageField}>
-        <TextField
-          value={currMessage}
-          multiline
-          sx={mainStyles.input}
-          onChange={e => setCurrMessage(e.target.value)}
-          variant="outlined"
-          InputProps={{
-            sx: {
-              borderRadius: "15px",
-              fontSize: "20px",
-              color: "#fff",
-            },
-            endAdornment: (
-              <IconButton type="submit">
-                <SendOutlined />
-              </IconButton>
-            ),
-          }}
-          placeholder="Message"
-        />
-      </Box>
+          </Box>
+        </>
+      )}
     </Box>
   );
 };

@@ -3,10 +3,9 @@
 import { Avatar, ListItemAvatar, ListItemText } from "@mui/material";
 import { Badge, ListItemButton } from "@mui/material";
 import { mainStyles } from "../styles";
-import { DocumentData, arrayUnion, doc, getDoc } from "firebase/firestore";
+import { DocumentData, doc, getDoc } from "firebase/firestore";
 import { serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { emailName } from "@utils/emailToDisplay";
-import { formatDate } from "@utils/date";
 import { useAuth } from "@hooks/authHook";
 import { db } from "@fb";
 import { useContacts } from "@hooks/actionsHook";
@@ -18,52 +17,72 @@ type Props = {
 };
 
 const Contact = ({ listData, setOpenChat }: Props) => {
-  const { id } = useAuth();
+  const { id, email, fullName, lastVisit, photoURL } = useAuth();
   const { changeFriend, changeMessages } = useContacts();
+  const { userInfo } = listData;
 
   const handleSelect = async () => {
-    const mixedId = [id, listData.id].sort().join("-");
-    const res = await getDoc(doc(db, "chats", mixedId));
+    const mixedId = [id, userInfo.id].sort().join("");
+    try {
+      const res = await getDoc(doc(db, "chats", mixedId));
 
-    setOpenChat(true);
+      setOpenChat(true);
 
-    if (!res.exists()) {
-      await setDoc(doc(db, "chats", mixedId), {
-        usersRefArr: [id, listData.id],
-        messages: [],
-        chatCreated: serverTimestamp(),
-      });
-      await updateDoc(doc(db, "users", id), {
-        contacts: arrayUnion(doc(db, "users", listData.id)),
-      });
-      await updateDoc(doc(db, "users", listData.id), {
-        contacts: arrayUnion(doc(db, "users", id)),
-      });
-    } else {
-      const { chatCreated, messages, ...other } = res.data();
+      if (!res.exists()) {
+        await setDoc(doc(db, "chats", mixedId), {
+          messages: [],
+        });
 
-      const timedMessages = messages.map(msg => ({
-        ...msg,
-        date: moment(msg.date.toDate()).fromNow(),
-      })); // Timestump.now() to date
-      const date = moment(chatCreated.toDate()).format("YYYY-MM-DD"); // server-timestump to date
+        await updateDoc(doc(db, "userChats", id), {
+          [mixedId + ".userInfo"]: {
+            id: userInfo.id,
+            fullName: userInfo.fullName,
+            photoURL: userInfo.photoURL,
+            lastVisit: userInfo.lastVisit,
+            email: userInfo.email,
+          },
+          [mixedId + ".date"]: serverTimestamp(),
+        });
 
-      changeMessages({ ...other, date, messages: timedMessages });
+        await updateDoc(doc(db, "userChats", userInfo.id), {
+          [mixedId + ".userInfo"]: {
+            id: id,
+            fullName: fullName,
+            photoURL: photoURL,
+            lastVisit: lastVisit,
+            email: email,
+          },
+          [mixedId + ".date"]: serverTimestamp(),
+        });
+      } else {
+        const chatData = res.data();
+
+        const { messages } = chatData;
+
+        const timedMessages = messages.map(msg => ({
+          ...msg,
+          date: moment(msg.date.toDate()).fromNow(),
+        })); // Timestump.now() to date
+
+        changeMessages({ messages: timedMessages });
+      }
+    } catch (e) {
+      console.log(e);
     }
 
-    changeFriend(listData);
+    changeFriend(userInfo);
   };
 
   return (
-    <ListItemButton key={Math.random()} sx={mainStyles.contactListItem} onClick={handleSelect}>
+    <ListItemButton key={userInfo?.id} sx={mainStyles.contactListItem} onClick={handleSelect}>
       <ListItemAvatar>
-        <Avatar sx={{ width: 56, height: 56 }} src={listData?.photoURL || ""} />
+        <Avatar sx={{ width: 56, height: 56 }} src={userInfo?.photoURL || ""} />
       </ListItemAvatar>
       <ListItemText
         primaryTypographyProps={mainStyles.contactListItemPrm}
         secondaryTypographyProps={mainStyles.contactListItemScr}
-        primary={listData?.fullName || emailName(listData?.email)}
-        secondary={formatDate(listData.lastVisit)}
+        primary={userInfo?.fullName || emailName(userInfo?.email)}
+        secondary={listData?.lastMessage?.text}
       />
       <Badge sx={mainStyles.costumBadge} color="secondary" badgeContent={0} />
     </ListItemButton>

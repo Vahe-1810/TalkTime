@@ -33,6 +33,7 @@ export interface messageType {
   contacts: [];
   messagesData: TypeMSGData;
   currentFriendInfo: User | null;
+  loading: boolean;
 }
 
 type TypeMSGData = {

@@ -11,8 +11,8 @@ export const setUserCollection = async (user: User) => {
       email: user?.email,
       id: user.uid,
       lastVisit: user?.metadata.lastSignInTime,
-      contacts: [],
     });
+    setDoc(doc(db, "userChats", user.uid), {});
   } catch (error) {
     console.error(error);
   }

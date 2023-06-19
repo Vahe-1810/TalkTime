@@ -8,6 +8,7 @@ const initialState: messageType = {
   contacts: [],
   messagesData: {},
   currentFriendInfo: null,
+  loading: true,
 };
 
 const messageSlice = createSlice({
@@ -23,7 +24,8 @@ const messageSlice = createSlice({
   },
   extraReducers(builder) {
     builder.addCase(fetchContacts.fulfilled, (state, { payload }) => {
-      state.contacts = <any>payload;
+      state.contacts = payload;
+      state.loading = false;
     });
   },
 });

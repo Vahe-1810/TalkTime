@@ -1,4 +1,3 @@
-import { TypeOpen } from "@tps/type";
 import { Avatar, ImageListItem, ListItemSecondaryAction } from "@mui/material";
 import { List, ListItemButton, ListItemText, IconButton } from "@mui/material";
 import { ImageListItemBar, Typography, Box, Drawer } from "@mui/material";

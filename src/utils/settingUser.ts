@@ -26,7 +26,7 @@ export const toggleUser: TypeTggUser = user => {
   };
 };
 // eslint-disable-next-line
-export const googleToggle = ({ contacts, ...data }: any) => ({
+export const googleToggle = ({ userChats, contacts, ...data }: any) => ({
   isAuth: true,
   loading: false,
   currentUser: data,

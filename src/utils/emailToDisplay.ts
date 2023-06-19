@@ -1,1 +1,1 @@
-export const emailName = (email: string) => email.split("@")[0];
+export const emailName = (email: string) => email?.split("@")[0];
