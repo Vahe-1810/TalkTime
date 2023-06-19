@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { CircularProgress, Divider } from "@mui/material";
 import { Paper, List } from "@mui/material";
 import { mainStyles } from "../styles";

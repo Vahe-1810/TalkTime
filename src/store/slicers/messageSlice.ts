@@ -15,11 +15,14 @@ const messageSlice = createSlice({
   name: "message",
   initialState,
   reducers: {
-    changeFriend(state, { payload }: PayloadAction<User>) {
+    changeFriend(state, { payload }: PayloadAction<User | null>) {
       state.currentFriendInfo = payload;
     },
     changeMessages(state, { payload }) {
       state.messagesData = payload;
+    },
+    setLoading(state, { payload }) {
+      state.loading = payload;
     },
   },
   extraReducers(builder) {
@@ -32,4 +35,4 @@ const messageSlice = createSlice({
 
 export default messageSlice.reducer;
 export const messageState = (state: RootState) => state.message;
-export const { changeFriend, changeMessages } = messageSlice.actions;
+export const { changeFriend, changeMessages, setLoading } = messageSlice.actions;

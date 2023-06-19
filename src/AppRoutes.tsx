@@ -4,7 +4,7 @@ import Main from "@components/main/Main";
 import { useAuth } from "@hooks/authHook";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useEffect } from "react";
-import { useAuthActions } from "@hooks/actionsHook";
+import { useAuthActions, useContacts } from "@hooks/actionsHook";
 import { onAuthStateChanged } from "firebase/auth";
 import { toggleUser } from "@utils/settingUser";
 import { auth } from "@fb";
@@ -24,10 +24,16 @@ const AuthRoutes = [
 const AppRoutes = () => {
   const { isAuth, loading } = useAuth();
   const { setUser } = useAuthActions();
+  const { setLoading, changeFriend } = useContacts();
 
   useEffect(() => {
     onAuthStateChanged(auth, user => {
       setUser(toggleUser(user));
+
+      setLoading(true);
+      if (!user) {
+        changeFriend(null);
+      }
     });
     //eslint-disable-next-line
   }, [isAuth]);

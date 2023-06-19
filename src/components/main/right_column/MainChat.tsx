@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { Box, IconButton, TextField } from "@mui/material";
+import { Box, CircularProgress, IconButton, TextField } from "@mui/material";
 import Message from "./Message";
 import { SendOutlined } from "@mui/icons-material";
 import { mainStyles } from "../styles";
@@ -17,7 +17,7 @@ import moment from "moment";
 
 const MainChat = () => {
   const [currMessage, setCurrMessage] = useState("");
-  const { messagesData, currentFriendInfo } = useTSelector(messageState);
+  const { messagesData, currentFriendInfo, loading } = useTSelector(messageState);
   const { messages } = messagesData;
   const { id } = useAuth();
   const ref = useRef();
@@ -82,6 +82,8 @@ const MainChat = () => {
     };
     // eslint-disable-next-line
   }, [mixedId]);
+
+  if (loading) <CircularProgress />;
 
   return (
     <Box sx={mainStyles.chatBox}>
