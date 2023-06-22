@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import { Box, CircularProgress, IconButton, TextField } from "@mui/material";
 import Message from "./Message";
 import { SendOutlined } from "@mui/icons-material";
@@ -21,7 +19,7 @@ const MainChat = () => {
   const { messages } = messagesData;
   const { id } = useAuth();
   const ref = useRef();
-  const { changeMessages, fetchContacts } = useContacts();
+  const { changeMessages } = useContacts();
   const mixedId = useMemo(
     () => [id, currentFriendInfo?.id]?.sort().join(""),
     [currentFriendInfo?.id, id]
@@ -43,19 +41,21 @@ const MainChat = () => {
       console.log(error);
     }
 
-    await updateDoc(doc(db, "userChats", id), {
-      [mixedId + ".lastMessage"]: {
-        text: currMessage,
-      },
-      [mixedId + ".date"]: serverTimestamp(),
-    });
+    id &&
+      (await updateDoc(doc(db, "userChats", id), {
+        [mixedId + ".lastMessage"]: {
+          text: currMessage,
+        },
+        [mixedId + ".date"]: serverTimestamp(),
+      }));
 
-    await updateDoc(doc(db, "userChats", currentFriendInfo?.id), {
-      [mixedId + ".lastMessage"]: {
-        text: currMessage,
-      },
-      [mixedId + ".date"]: serverTimestamp(),
-    });
+    currentFriendInfo?.id &&
+      (await updateDoc(doc(db, "userChats", currentFriendInfo?.id), {
+        [mixedId + ".lastMessage"]: {
+          text: currMessage,
+        },
+        [mixedId + ".date"]: serverTimestamp(),
+      }));
 
     setCurrMessage("");
   };
@@ -66,18 +66,14 @@ const MainChat = () => {
         const { messages } = doc.data();
         const timedMessages = messages.map((msg: IMessage) => ({
           ...msg,
-          date: moment(msg.date.toDate()).fromNow(),
+          date: msg.date instanceof Timestamp ? moment(msg.date.toDate()).fromNow() : msg.date,
         })); // Timestump.now() to date
 
         changeMessages({ messages: timedMessages });
       }
     });
-    const onCntsSub = onSnapshot(doc(db, "userChats", id), doc => {
-      doc.exists() && fetchContacts(doc.data());
-    });
 
     return () => {
-      onCntsSub();
       onSub();
     };
     // eslint-disable-next-line
@@ -97,7 +93,7 @@ const MainChat = () => {
                     key={Math.random()}
                     text={msg.message}
                     sender={msg.sender === id}
-                    date={msg.date}
+                    date={msg.date instanceof Timestamp ? msg.date.toDate().toString() : msg.date}
                   />
                 );
               })}

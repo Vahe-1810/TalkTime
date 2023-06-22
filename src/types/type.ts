@@ -1,11 +1,12 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface User {
   email: string | null;
   id: string;
   photoURL: string | null;
-  phoneNumber: string | null;
+  phoneNumber?: string | null;
   fullName: string | null;
   lastVisit: string;
-  contacts?: unknown;
 }
 
 export interface IUser {
@@ -30,20 +31,26 @@ export type TypeOpen = {
 };
 
 export interface messageType {
-  contacts: [];
+  contacts: IContacts[] | [];
   messagesData: TypeMSGData;
   currentFriendInfo: User | null;
   loading: boolean;
 }
 
-type TypeMSGData = {
+export interface IContacts {
+  date: number;
+  lastMessage: { text: string };
+  userInfo: User;
+}
+
+export type TypeMSGData = {
   chatCreated?: string;
   usersRefArr?: string[];
   messages?: IMessage[];
 };
 
 export interface IMessage {
-  date: unknown;
+  date: Timestamp | string;
   message: string;
   sender: string;
 }

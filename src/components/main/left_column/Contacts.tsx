@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import { CircularProgress, Divider } from "@mui/material";
 import { Paper, List } from "@mui/material";
 import { mainStyles } from "../styles";
@@ -8,6 +6,7 @@ import Contact from "./Contact";
 import { Fragment } from "react";
 import { messageState } from "@store/slicers/messageSlice";
 import { useTSelector } from "@hooks/typedHooks";
+import { IContacts } from "@tps/type";
 
 type Props = {
   people: DocumentData[] | null;
@@ -29,10 +28,11 @@ const Contacts = ({ people, setOpenChat }: Props) => {
               <Divider />
             </Fragment>
           ))}
-        {!!contacts?.length &&
-          [...contacts]
-            .sort((a, b) => b?.date - a?.date)
-            .map((cnt, i) => <Contact key={i} listData={cnt} setOpenChat={setOpenChat} />)}
+        {contacts?.length
+          ? [...contacts]
+              .sort((a: IContacts, b: IContacts) => b?.date - a?.date)
+              .map((cnt, i) => <Contact key={i} listData={cnt} setOpenChat={setOpenChat} />)
+          : ""}
       </List>
     </Paper>
   );

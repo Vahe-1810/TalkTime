@@ -14,9 +14,8 @@ const GoogleAuth = () => {
     try {
       const { user } = await signInWithPopup(auth, googleProvider);
       const checkUser = await getDoc(doc(db, "users", user.uid));
+
       if (checkUser.exists()) {
-        // eslint-disable-next-line
-        // @ts-ignore
         setUser(googleToggle(checkUser.data()));
         return;
       }

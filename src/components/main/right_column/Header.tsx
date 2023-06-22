@@ -42,7 +42,7 @@ const Header = ({ open, setOpen, setOpenChat }: TypeOpen) => {
           )}
           <IconButton disableRipple>
             <ListItemAvatar sx={{ display: "flex", alignItems: "center" }}>
-              <Avatar src={friend?.photoURL || ""} alt="h" />
+              <Avatar src={friend?.photoURL || ""} alt={friend?.fullName || friend?.email || ""} />
             </ListItemAvatar>
           </IconButton>
           <ListItemText

@@ -128,4 +128,21 @@ export const mainStyles = {
       background: "#2c2c2c",
     },
   },
+  editor: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    bgcolor: "transparent",
+    border: "2px solid #000",
+    boxShadow: 24,
+    display: "flex",
+    flexDirection: "column",
+  },
+};
+
+export const addCenter = {
+  display: "flex",
+  justofyContent: "center",
+  alignItems: "center",
 };

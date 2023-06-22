@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "..";
-import { IUser } from "@tps/type";
+import { IUser, User } from "@tps/type";
 
 const initialState: IUser = {
   currentUser: null,
@@ -17,9 +17,12 @@ const authSlice = createSlice({
       state.currentUser = payload.currentUser;
       state.loading = payload.loading;
     },
+    changeUserInfo(state, { payload }: PayloadAction<User>) {
+      state.currentUser = payload;
+    },
   },
 });
 
 export const user = (state: RootState) => state.auth;
-export const { setUser } = authSlice.actions;
+export const { setUser, changeUserInfo } = authSlice.actions;
 export default authSlice.reducer;

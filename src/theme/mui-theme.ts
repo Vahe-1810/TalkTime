@@ -59,6 +59,14 @@ export const theme = createTheme({
         },
       },
     },
+    MuiDrawer: {
+      defaultProps: {},
+      styleOverrides: {
+        paper: {
+          background: "#212121",
+        },
+      },
+    },
   },
   breakpoints: {
     values: {

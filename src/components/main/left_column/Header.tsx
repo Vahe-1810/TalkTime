@@ -1,4 +1,4 @@
-import { ExitToApp, Search } from "@mui/icons-material";
+import { ExitToApp, Search, Settings } from "@mui/icons-material";
 import { InputAdornment, IconButton, MenuItem, Avatar } from "@mui/material";
 import { Box, TextField, Menu, Typography } from "@mui/material";
 import { mainStyles } from "../styles";
@@ -24,9 +24,10 @@ const inputProps = {
 
 type Props = {
   setPeople: (u: DocumentData[]) => void;
+  setOpenDrawer: (b: boolean) => void;
 };
 
-const Header = ({ setPeople }: Props) => {
+const Header = ({ setPeople, setOpenDrawer }: Props) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [open, setOpen] = useState(false);
   const { photoURL, fullName, email } = useAuth();
@@ -75,9 +76,17 @@ const Header = ({ setPeople }: Props) => {
         <MenuItem disabled>
           <Typography variant="subtitle1">{fullName || email}</Typography>
         </MenuItem>
+        <MenuItem
+          sx={mainStyles.menuItem}
+          onClick={() => {
+            setOpenDrawer(true);
+            menuClose();
+          }}
+        >
+          <Settings /> Settings
+        </MenuItem>
         <MenuItem sx={mainStyles.menuItem} onClick={() => signOut(auth)}>
-          Sign Out
-          <ExitToApp />
+          <ExitToApp /> Sign Out
         </MenuItem>
       </Menu>
     </>

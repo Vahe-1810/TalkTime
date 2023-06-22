@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "..";
 import { fetchContacts } from "@store/thunks";

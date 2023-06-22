@@ -1,26 +1,23 @@
-/* eslint-disable */
-// @ts-nocheck
-import { db } from "@fb";
-import { useContacts } from "@hooks/actionsHook";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { IUser, User } from "@tps/type";
-import { DocumentReference, SnapshotMetadata, doc, getDoc, onSnapshot } from "firebase/firestore";
+import { IContacts } from "@tps/type";
+import { DocumentData, DocumentReference, getDoc } from "firebase/firestore";
 import moment from "moment";
 
-export const fetchContacts = createAsyncThunk<[], SnapshotMetadata>(
+//prettier-ignore
+export const fetchContacts = createAsyncThunk<IContacts[], DocumentData>(
   "message/fetchContacts",
-  async (docData, { getState }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async (docData): Promise<any> => {
     try {
-      //prettier-ignore
-      const { currentUser }: IUser = getState().auth;
-
-      return new Promise((res, rej) => {
+      return new Promise(res => {
         const getChats = () => {
-          const result = [];
+          
+          const result = <IContacts[]>[];
           const friends = Object.entries(docData);
-          friends.forEach(fnd => {
-            const { date, ...other } = fnd[1];
 
+          friends.forEach(fnd => {
+            const { date,  ...other } = fnd[1];
+            
             result.push({
               ...other,
               date: date && moment(date.toDate()).valueOf(),
@@ -28,8 +25,21 @@ export const fetchContacts = createAsyncThunk<[], SnapshotMetadata>(
           });
           res(result);
         };
-        if (currentUser?.id && docData) getChats();
-      }).catch(console.log);
+        if (docData) getChats();
+        else return []
+      })
+      .then((result: unknown) => {
+        const contacts = result as IContacts[]
+        
+        return Promise.all(contacts.map(async ({userInfo, lastMessage}) => {
+          if(userInfo instanceof DocumentReference) {
+            const userData = await getDoc(userInfo)
+            
+            return { userInfo: {...userData.data()}, lastMessage}
+          }
+        }))
+      })
+      .catch(console.log);
     } catch (e) {
       console.log(e);
     }

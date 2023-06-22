@@ -3,7 +3,7 @@ import AppRoutes from "./AppRoutes";
 
 const App: FC = () => {
   return (
-    <div className="containerr">
+    <div className="app">
       <AppRoutes />
     </div>
   );

@@ -25,7 +25,6 @@ const InfoTab = ({ open, setOpen }: { open: boolean; setOpen: (a: boolean) => vo
       </Box>
       <ImageListItem>
         <Avatar
-          alt={friend?.email || ""}
           src={friend?.photoURL || ""}
           style={{ width: "100%", height: "100%" }}
           variant="square"

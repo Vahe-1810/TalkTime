@@ -1,15 +1,14 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 import { Avatar, ListItemAvatar, ListItemText } from "@mui/material";
 import { Badge, ListItemButton } from "@mui/material";
 import { mainStyles } from "../styles";
-import { DocumentData, doc, getDoc } from "firebase/firestore";
+import { DocumentData, Timestamp, doc, getDoc } from "firebase/firestore";
 import { serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { emailName } from "@utils/emailToDisplay";
 import { useAuth } from "@hooks/authHook";
 import { db } from "@fb";
 import { useContacts } from "@hooks/actionsHook";
 import moment from "moment";
+import { IMessage } from "@tps/type";
 
 type Props = {
   listData: DocumentData;
@@ -17,7 +16,7 @@ type Props = {
 };
 
 const Contact = ({ listData, setOpenChat }: Props) => {
-  const { id, email, fullName, lastVisit, photoURL } = useAuth();
+  const { id } = useAuth();
   const { changeFriend, changeMessages } = useContacts();
   const { userInfo } = listData;
 
@@ -33,35 +32,24 @@ const Contact = ({ listData, setOpenChat }: Props) => {
           messages: [],
         });
 
-        await updateDoc(doc(db, "userChats", id), {
-          [mixedId + ".userInfo"]: {
-            id: userInfo.id,
-            fullName: userInfo.fullName,
-            photoURL: userInfo.photoURL,
-            lastVisit: userInfo.lastVisit,
-            email: userInfo.email,
-          },
-          [mixedId + ".date"]: serverTimestamp(),
-        });
-
-        await updateDoc(doc(db, "userChats", userInfo.id), {
-          [mixedId + ".userInfo"]: {
-            id: id,
-            fullName: fullName,
-            photoURL: photoURL,
-            lastVisit: lastVisit,
-            email: email,
-          },
-          [mixedId + ".date"]: serverTimestamp(),
-        });
+        id &&
+          (await updateDoc(doc(db, "userChats", id), {
+            [mixedId + ".userInfo"]: doc(db, "users", userInfo.id),
+            [mixedId + ".date"]: serverTimestamp(),
+          }));
+        id &&
+          (await updateDoc(doc(db, "userChats", userInfo.id), {
+            [mixedId + ".userInfo"]: doc(db, "users", id),
+            [mixedId + ".date"]: serverTimestamp(),
+          }));
       } else {
         const chatData = res.data();
 
         const { messages } = chatData;
 
-        const timedMessages = messages.map(msg => ({
+        const timedMessages = messages.map((msg: IMessage) => ({
           ...msg,
-          date: moment(msg.date.toDate()).fromNow(),
+          date: msg.date instanceof Timestamp ? moment(msg.date.toDate()).fromNow() : msg.date,
         })); // Timestump.now() to date
 
         changeMessages({ messages: timedMessages });
