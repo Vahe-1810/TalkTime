@@ -79,7 +79,7 @@ export const mainStyles = {
     flexDirection: "column",
     flexShrink: 0,
     "& .MuiDrawer-paper": {
-      width: 300,
+      width: { md: 300, xs: "100%" },
       backgroundColor: "#212121",
     },
   },

@@ -1,7 +1,7 @@
 import { ArrowBack, Call, MoreVert, Search } from "@mui/icons-material";
 import { Avatar, Box, IconButton, useMediaQuery } from "@mui/material";
 import { ListItem, Menu } from "@mui/material";
-import { ListItemAvatar, ListItemText } from "@mui/material";
+import { ListItemAvatar, ListItemText, MenuItem } from "@mui/material";
 import { mainStyles } from "../styles";
 import moment from "moment";
 import { useState } from "react";
@@ -55,19 +55,36 @@ const Header = ({ open, setOpen, setOpenChat }: TypeOpen) => {
           />
         </ListItem>
         <Box sx={mainStyles.toolBox}>
-          <IconButton>
-            <Search />
-          </IconButton>
-          <IconButton>
-            <Call />
-          </IconButton>
+          {!phoneSize && (
+            <>
+              <IconButton>
+                <Search />
+              </IconButton>
+              <IconButton>
+                <Call />
+              </IconButton>
+            </>
+          )}
           <IconButton onClick={handleOpen}>
             <MoreVert />
           </IconButton>
         </Box>
         <InfoTab open={open} setOpen={setOpen} />
       </Box>
-      <Menu open={menuOpen} onClose={handleClose} anchorEl={anchor}></Menu>
+      <Menu open={menuOpen} onClose={handleClose} anchorEl={anchor}>
+        {phoneSize && (
+          <>
+            <MenuItem>
+              <Search />
+              Search
+            </MenuItem>
+            <MenuItem>
+              <Call />
+              Call
+            </MenuItem>
+          </>
+        )}
+      </Menu>
     </>
   );
 };
