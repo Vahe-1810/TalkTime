@@ -105,6 +105,9 @@ const Header = ({ open, setOpen, setOpenChat }: TypeOpen) => {
               <Call />
               Call
             </MenuItem>
+            <MenuItem onClick={handleClearChat}>
+              <Delete /> Clear chat
+            </MenuItem>
           </div>
         ) : (
           <MenuItem onClick={handleClearChat}>

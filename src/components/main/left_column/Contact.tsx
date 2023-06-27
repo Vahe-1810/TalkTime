@@ -9,6 +9,7 @@ import { emailName } from "@utils/emailToDisplay";
 import { IMessage } from "@tps/type";
 import { useAuth } from "@hooks/authHook";
 import { db } from "@fb";
+import { CostumBadge } from "@shared/CostumBadge";
 
 type Props = {
   listData: DocumentData;
@@ -80,7 +81,13 @@ const Contact = ({ listData, setOpenChat }: Props) => {
   return (
     <ListItemButton key={userInfo?.id} sx={mainStyles.contactListItem} onClick={handleSelect}>
       <ListItemAvatar>
-        <Avatar sx={{ width: 56, height: 56 }} src={userInfo?.photoURL || ""} />
+        <CostumBadge
+          overlap="circular"
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          variant={userInfo?.isOnline ? "dot" : "standard"}
+        >
+          <Avatar sx={{ width: 56, height: 56 }} src={userInfo?.photoURL || ""} />
+        </CostumBadge>
       </ListItemAvatar>
       <ListItemText
         primaryTypographyProps={mainStyles.contactListItemPrm}

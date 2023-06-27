@@ -21,7 +21,7 @@ const LeftColumn = ({ setOpenChat, openChat }: Props) => {
   const [isSing, setIsSing] = useState(false);
   const isSigningIn = useMemo(() => isSing, [isSing]);
   const isPhone = useMediaQuery(theme.breakpoints.down("sm"));
-  const { fetchContacts, playMessageAudio } = useContacts();
+  const { fetchContacts } = useContacts();
   const { id } = useAuth();
 
   const handleDrawerClose = () => {
@@ -35,14 +35,17 @@ const LeftColumn = ({ setOpenChat, openChat }: Props) => {
         doc => {
           if (doc.exists()) {
             fetchContacts(doc.data());
+            const arrFromData = Object.entries(doc.data()).sort(
+              (a, b) => b[1]?.date?.seconds - a[1]?.date?.seconds
+            )[0];
+
             if (
               isSigningIn &&
-              Object.entries(doc.data()).sort(
-                (a, b) => b[1]?.date?.seconds - a[1]?.date?.seconds
-              )[0][1].lastMessage.sender !== id
+              arrFromData[1].lastMessage.sender !== id &&
+              arrFromData[1].lastMessage.unread > 0
             )
-              playMessageAudio();
-            setIsSing(true);
+              // playMessageAudio(); it's doesn't work
+              setIsSing(true);
           }
         },
         console.log

@@ -10,6 +10,8 @@ import Signin from "@components/auth_components/SignIn";
 import Signup from "@components/auth_components/SignUp";
 import Main from "@components/main/Main";
 import { doc, updateDoc } from "firebase/firestore";
+import { useTSelector } from "@hooks/typedHooks";
+import { user } from "@store/slicers/authSlice";
 
 const authRoutes = [
   {
@@ -23,22 +25,33 @@ const authRoutes = [
 ];
 
 const AppRoutes = () => {
-  const { isAuth, loading, id } = useAuth();
+  const { isAuth, loading } = useAuth();
+  const id = useTSelector(user).currentUser?.id;
   const { setUser } = useAuthActions();
-  const { setLoading, changeFriend } = useContacts();
+  const changeFriend = useContacts().changeFriend;
 
   useEffect(() => {
     onAuthStateChanged(auth, user => {
-      setUser(toggleUser(user));
-      id &&
-        updateDoc(doc(db, "users", id), {
-          lastVisit: user?.metadata.lastSignInTime,
+      if (user) {
+        updateDoc(doc(db, "users", user.uid), {
+          lastVisit: user?.metadata?.lastSignInTime,
+          isOnline: true,
         });
-      setLoading(true);
+      }
+
       if (!user) {
         changeFriend(null);
+        console.log(id);
+
+        if (id) {
+          updateDoc(doc(db, "users", id), {
+            isOnline: false,
+          });
+        }
       }
+      setUser(toggleUser(user));
     });
+
     //eslint-disable-next-line
   }, [isAuth]);
 

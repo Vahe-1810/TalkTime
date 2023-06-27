@@ -55,7 +55,6 @@ const MainChat = () => {
   }, [currMessage]);
 
   useEffect(() => {
-    console.log("optimize");
     if (ref.current) ref.current.scrollTop = ref.current.scrollHeight;
     const onSub = onSnapshot(doc(db, "chats", mixedId), doc => {
       if (doc.exists()) {

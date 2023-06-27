@@ -32,7 +32,7 @@ const Contacts = ({ people, setOpenChat }: Props) => {
             person =>
               id &&
               person.id !== id &&
-              ids.includes(id) && (
+              !ids.includes(person.id) && (
                 <Fragment key={person.id}>
                   <Contact listData={{ userInfo: person }} setOpenChat={setOpenChat} />
                   <Divider />

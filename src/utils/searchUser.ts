@@ -13,5 +13,6 @@ export const searchUser = async (value: string, setResult: (r: DocumentData[]) =
   querySnap.forEach(u => {
     result.push(u.data());
   });
+
   setResult(result);
 };
