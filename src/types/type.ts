@@ -13,6 +13,7 @@ export interface IUser {
   currentUser: User | null;
   isAuth: boolean;
   loading: boolean;
+  isVerifing: boolean;
 }
 
 export interface ISignin {
@@ -35,11 +36,15 @@ export interface messageType {
   messagesData: TypeMSGData;
   currentFriendInfo: User | null;
   loading: boolean;
+  messageAudio: string;
 }
 
 export interface IContacts {
   date: number;
-  lastMessage: { text: string };
+  lastMessage: {
+    text: string;
+    sender: string;
+  };
   userInfo: User;
 }
 

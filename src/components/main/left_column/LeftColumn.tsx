@@ -1,14 +1,14 @@
-import { Box, Drawer, useMediaQuery } from "@mui/material";
-import Contacts from "./Contacts";
-import Header from "./Header";
-import { mainStyles } from "../styles";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DocumentData, doc, onSnapshot } from "firebase/firestore";
+import { Box, Drawer, useMediaQuery } from "@mui/material";
 import { theme } from "@theme/mui-theme";
-import Settings from "./Settings";
 import { useContacts } from "@hooks/actionsHook";
 import { db } from "@fb";
 import { useAuth } from "@hooks/authHook";
+import { mainStyles } from "../styles";
+import Settings from "./settings/Settings";
+import Contacts from "./Contacts";
+import Header from "./Header";
 
 type Props = {
   setOpenChat: (T: boolean) => void;
@@ -17,9 +17,11 @@ type Props = {
 
 const LeftColumn = ({ setOpenChat, openChat }: Props) => {
   const [people, setPeople] = useState<DocumentData[] | null>(null);
-  const isPhone = useMediaQuery(theme.breakpoints.down("sm"));
   const [openDrawer, setOpenDrawer] = useState(false);
-  const { fetchContacts } = useContacts();
+  const [isSing, setIsSing] = useState(false);
+  const isSigningIn = useMemo(() => isSing, [isSing]);
+  const isPhone = useMediaQuery(theme.breakpoints.down("sm"));
+  const { fetchContacts, playMessageAudio } = useContacts();
   const { id } = useAuth();
 
   const handleDrawerClose = () => {
@@ -28,13 +30,27 @@ const LeftColumn = ({ setOpenChat, openChat }: Props) => {
 
   useEffect(() => {
     if (id) {
-      const onsub = onSnapshot(doc(db, "userChats", id), doc => {
-        doc.exists() && fetchContacts(doc.data());
-      });
+      const onsub = onSnapshot(
+        doc(db, "userChats", id),
+        doc => {
+          if (doc.exists()) {
+            fetchContacts(doc.data());
+            if (
+              isSigningIn &&
+              Object.entries(doc.data()).sort(
+                (a, b) => b[1]?.date?.seconds - a[1]?.date?.seconds
+              )[0][1].lastMessage.sender !== id
+            )
+              playMessageAudio();
+            setIsSing(true);
+          }
+        },
+        console.log
+      );
 
       return () => onsub();
-    }
-  }, [id, fetchContacts]);
+    } //eslint-disable-next-line
+  }, [id]);
 
   return (
     <Box sx={{ ...mainStyles.leftSideContainer, display: openChat && isPhone ? "none" : "flex" }}>

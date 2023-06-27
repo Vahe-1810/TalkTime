@@ -12,6 +12,9 @@ export const theme = createTheme({
     secondary: {
       main: "#11cb5f",
     },
+    text: {
+      primary: "#fff",
+    },
   },
   components: {
     MuiTextField: {
@@ -60,7 +63,18 @@ export const theme = createTheme({
       },
     },
     MuiDrawer: {
-      defaultProps: {},
+      styleOverrides: {
+        paper: {
+          background: "#212121",
+        },
+      },
+    },
+    MuiIconButton: {
+      defaultProps: {
+        color: "primary",
+      },
+    },
+    MuiDialog: {
       styleOverrides: {
         paper: {
           background: "#212121",

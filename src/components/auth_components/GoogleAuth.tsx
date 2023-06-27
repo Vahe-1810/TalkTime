@@ -1,3 +1,4 @@
+import { componentsStyles } from "@components/auth_components/styles";
 import { auth, db } from "@fb";
 import { useAuthActions } from "@hooks/actionsHook";
 import { Button, Typography } from "@mui/material";
@@ -38,13 +39,7 @@ const GoogleAuth = () => {
           alt="google-logo"
         />
       }
-      sx={{
-        color: "#fff",
-        textAlign: "start",
-        justifyContent: "flex-start",
-        pl: 5,
-        mt: 1.5,
-      }}
+      sx={componentsStyles.googleButton}
       variant="outlined"
     >
       <Typography variant="h6"> Google</Typography>

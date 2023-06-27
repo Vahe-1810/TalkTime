@@ -1,5 +1,5 @@
 import { ExitToApp, Search, Settings } from "@mui/icons-material";
-import { InputAdornment, IconButton, MenuItem, Avatar } from "@mui/material";
+import { IconButton, MenuItem, Avatar } from "@mui/material";
 import { Box, TextField, Menu, Typography } from "@mui/material";
 import { mainStyles } from "../styles";
 import { useState } from "react";
@@ -10,11 +10,6 @@ import { searchUser } from "@utils/searchUser";
 import { DocumentData } from "firebase/firestore";
 
 const inputProps = {
-  startAdornment: (
-    <InputAdornment position="start">
-      <Search />
-    </InputAdornment>
-  ),
   style: {
     borderRadius: "50px",
     background: "#2c2c2c",
@@ -61,7 +56,14 @@ const Header = ({ setPeople, setOpenDrawer }: Props) => {
           variant="outlined"
           type="text"
           placeholder="Search"
-          InputProps={{ ...inputProps }}
+          InputProps={{
+            ...inputProps,
+            endAdornment: (
+              <IconButton onClick={() => searchUser(searchValue, setPeople)}>
+                <Search />
+              </IconButton>
+            ),
+          }}
           size="small"
           InputLabelProps={{
             shrink: false,

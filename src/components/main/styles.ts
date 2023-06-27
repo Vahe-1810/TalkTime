@@ -87,7 +87,7 @@ export const mainStyles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    height: "56px",
+    height: "3.5rem",
     fontWeight: "700",
   },
   chatBox: {
@@ -144,5 +144,4 @@ export const mainStyles = {
 export const addCenter = {
   display: "flex",
   justofyContent: "center",
-  alignItems: "center",
 };

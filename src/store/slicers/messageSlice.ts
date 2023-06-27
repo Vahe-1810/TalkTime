@@ -2,12 +2,14 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "..";
 import { fetchContacts } from "@store/thunks";
 import { User, messageType } from "@tps/type";
+import sound from "@assets/whatssapp_web.mp3";
 
 const initialState: messageType = {
   contacts: [],
   messagesData: {},
   currentFriendInfo: null,
   loading: true,
+  messageAudio: sound,
 };
 
 const messageSlice = createSlice({
@@ -23,6 +25,9 @@ const messageSlice = createSlice({
     setLoading(state, { payload }) {
       state.loading = payload;
     },
+    playMessageAudio(state) {
+      new Audio(state.messageAudio).play();
+    },
   },
   extraReducers(builder) {
     builder.addCase(fetchContacts.fulfilled, (state, { payload }) => {
@@ -34,4 +39,4 @@ const messageSlice = createSlice({
 
 export default messageSlice.reducer;
 export const messageState = (state: RootState) => state.message;
-export const { changeFriend, changeMessages, setLoading } = messageSlice.actions;
+export const { changeFriend, changeMessages, setLoading, playMessageAudio } = messageSlice.actions;

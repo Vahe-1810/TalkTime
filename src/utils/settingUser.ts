@@ -6,8 +6,9 @@ type TypeTggUser = (user: FBUser | null) => IUser;
 export const toggleUser: TypeTggUser = user => {
   if (user)
     return {
-      isAuth: true,
+      isAuth: user.emailVerified,
       loading: false,
+      isVerifing: false,
       currentUser: <User>{
         email: user?.email,
         id: user?.uid,
@@ -23,6 +24,7 @@ export const toggleUser: TypeTggUser = user => {
     isAuth: false,
     loading: false,
     currentUser: null,
+    isVerifing: false,
   };
 };
 // eslint-disable-next-line
@@ -30,4 +32,5 @@ export const googleToggle = ({ userChats, contacts, ...data }: any) => ({
   isAuth: true,
   loading: false,
   currentUser: data,
+  isVerifing: false,
 });

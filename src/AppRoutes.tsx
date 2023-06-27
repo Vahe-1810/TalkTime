@@ -1,16 +1,17 @@
+import { onAuthStateChanged } from "firebase/auth";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
+import { useAuth } from "@hooks/authHook";
+import { useAuthActions, useContacts } from "@hooks/actionsHook";
+import { toggleUser } from "@utils/settingUser";
+import { auth, db } from "@fb";
+import { CircularProgress } from "@mui/material";
 import Signin from "@components/auth_components/SignIn";
 import Signup from "@components/auth_components/SignUp";
 import Main from "@components/main/Main";
-import { useAuth } from "@hooks/authHook";
-import { Navigate, Route, Routes } from "react-router-dom";
-import { useEffect } from "react";
-import { useAuthActions, useContacts } from "@hooks/actionsHook";
-import { onAuthStateChanged } from "firebase/auth";
-import { toggleUser } from "@utils/settingUser";
-import { auth } from "@fb";
-import { CircularProgress } from "@mui/material";
+import { doc, updateDoc } from "firebase/firestore";
 
-const AuthRoutes = [
+const authRoutes = [
   {
     path: "/signin",
     element: <Signin />,
@@ -22,14 +23,17 @@ const AuthRoutes = [
 ];
 
 const AppRoutes = () => {
-  const { isAuth, loading } = useAuth();
+  const { isAuth, loading, id } = useAuth();
   const { setUser } = useAuthActions();
   const { setLoading, changeFriend } = useContacts();
 
   useEffect(() => {
     onAuthStateChanged(auth, user => {
       setUser(toggleUser(user));
-
+      id &&
+        updateDoc(doc(db, "users", id), {
+          lastVisit: user?.metadata.lastSignInTime,
+        });
       setLoading(true);
       if (!user) {
         changeFriend(null);
@@ -49,7 +53,7 @@ const AppRoutes = () => {
         </>
       ) : (
         <>
-          {AuthRoutes.map(({ path, element }) => (
+          {authRoutes.map(({ path, element }) => (
             <Route key={path} path={path} element={element} />
           ))}
           <Route path="*" element={<Navigate to="/signin" replace />} />

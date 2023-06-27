@@ -10,7 +10,7 @@ const Main: FC = () => {
   return (
     <Box sx={mainStyles.container}>
       <LeftColumn setOpenChat={setOpenChat} openChat={openChat} />
-      <RightColumn openChat={openChat} setOpenChat={setOpenChat} />
+      <RightColumn setOpenChat={setOpenChat} openChat={openChat} />
     </Box>
   );
 };

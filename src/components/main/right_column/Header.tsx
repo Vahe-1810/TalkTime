@@ -1,4 +1,4 @@
-import { ArrowBack, Call, MoreVert, Search } from "@mui/icons-material";
+import { ArrowBack, Call, Delete, MoreVert, Search } from "@mui/icons-material";
 import { Avatar, Box, IconButton, useMediaQuery } from "@mui/material";
 import { ListItem, Menu } from "@mui/material";
 import { ListItemAvatar, ListItemText, MenuItem } from "@mui/material";
@@ -10,12 +10,17 @@ import { TypeOpen } from "@tps/type";
 import { useTSelector } from "@hooks/typedHooks";
 import { messageState } from "@store/slicers/messageSlice";
 import { theme } from "@theme/mui-theme";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
+import { db } from "@fb";
+import { useAuth } from "@hooks/authHook";
 
 const Header = ({ open, setOpen, setOpenChat }: TypeOpen) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [anchor, setAnchor] = useState<null | HTMLElement>(null);
   const friend = useTSelector(messageState).currentFriendInfo;
   const phoneSize = useMediaQuery(theme.breakpoints.down("sm"));
+  const { id } = useAuth();
+  const mixedId = friend && [id, friend.id].sort().join("");
 
   const handleOpen = (e: React.MouseEvent<HTMLButtonElement>) => {
     setAnchor(e.currentTarget);
@@ -29,6 +34,24 @@ const Header = ({ open, setOpen, setOpenChat }: TypeOpen) => {
 
   const handleGoBack = () => {
     setOpenChat(false);
+  };
+
+  const handleClearChat = async () => {
+    if (mixedId && id) {
+      await setDoc(doc(db, "chats", mixedId), {
+        messages: [],
+      });
+      await updateDoc(doc(db, "userChats", id), {
+        [mixedId + ".lastMessage"]: {
+          unread: 0,
+        },
+      });
+      await updateDoc(doc(db, "userChats", friend.id), {
+        [mixedId + ".lastMessage"]: {
+          unread: 0,
+        },
+      });
+    }
   };
 
   return (
@@ -72,8 +95,8 @@ const Header = ({ open, setOpen, setOpenChat }: TypeOpen) => {
         <InfoTab open={open} setOpen={setOpen} />
       </Box>
       <Menu open={menuOpen} onClose={handleClose} anchorEl={anchor}>
-        {phoneSize && (
-          <>
+        {phoneSize ? (
+          <div>
             <MenuItem>
               <Search />
               Search
@@ -82,7 +105,11 @@ const Header = ({ open, setOpen, setOpenChat }: TypeOpen) => {
               <Call />
               Call
             </MenuItem>
-          </>
+          </div>
+        ) : (
+          <MenuItem onClick={handleClearChat}>
+            <Delete /> Clear chat
+          </MenuItem>
         )}
       </Menu>
     </>

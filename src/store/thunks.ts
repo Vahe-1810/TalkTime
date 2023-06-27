@@ -11,7 +11,6 @@ export const fetchContacts = createAsyncThunk<IContacts[], DocumentData>(
     try {
       return new Promise(res => {
         const getChats = () => {
-          
           const result = <IContacts[]>[];
           const friends = Object.entries(docData);
 
@@ -31,11 +30,11 @@ export const fetchContacts = createAsyncThunk<IContacts[], DocumentData>(
       .then((result: unknown) => {
         const contacts = result as IContacts[]
         
-        return Promise.all(contacts.map(async ({userInfo, lastMessage}) => {
+        return Promise.all(contacts.map(async ({userInfo, lastMessage, date}) => {
           if(userInfo instanceof DocumentReference) {
             const userData = await getDoc(userInfo)
             
-            return { userInfo: {...userData.data()}, lastMessage}
+            return { userInfo: {...userData.data()}, lastMessage, date}
           }
         }))
       })

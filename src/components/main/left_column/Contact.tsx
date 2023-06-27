@@ -1,14 +1,14 @@
-import { Avatar, ListItemAvatar, ListItemText } from "@mui/material";
-import { Badge, ListItemButton } from "@mui/material";
-import { mainStyles } from "../styles";
+import moment from "moment";
 import { DocumentData, Timestamp, doc, getDoc } from "firebase/firestore";
 import { serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { Avatar, ListItemAvatar, ListItemText } from "@mui/material";
+import { Badge, ListItemButton } from "@mui/material";
+import { useContacts } from "@hooks/actionsHook";
+import { mainStyles } from "../styles";
 import { emailName } from "@utils/emailToDisplay";
+import { IMessage } from "@tps/type";
 import { useAuth } from "@hooks/authHook";
 import { db } from "@fb";
-import { useContacts } from "@hooks/actionsHook";
-import moment from "moment";
-import { IMessage } from "@tps/type";
 
 type Props = {
   listData: DocumentData;
@@ -16,9 +16,9 @@ type Props = {
 };
 
 const Contact = ({ listData, setOpenChat }: Props) => {
-  const { id } = useAuth();
   const { changeFriend, changeMessages } = useContacts();
   const { userInfo } = listData;
+  const { id } = useAuth();
 
   const handleSelect = async () => {
     const mixedId = [id, userInfo.id].sort().join("");
@@ -26,39 +26,55 @@ const Contact = ({ listData, setOpenChat }: Props) => {
       const res = await getDoc(doc(db, "chats", mixedId));
 
       setOpenChat(true);
+      if (id) {
+        if (!res.exists()) {
+          await setDoc(doc(db, "chats", mixedId), {
+            messages: [],
+          });
 
-      if (!res.exists()) {
-        await setDoc(doc(db, "chats", mixedId), {
-          messages: [],
-        });
-
-        id &&
-          (await updateDoc(doc(db, "userChats", id), {
+          await updateDoc(doc(db, "userChats", id), {
             [mixedId + ".userInfo"]: doc(db, "users", userInfo.id),
             [mixedId + ".date"]: serverTimestamp(),
-          }));
-        id &&
-          (await updateDoc(doc(db, "userChats", userInfo.id), {
+            [mixedId + ".lastMessage"]: {
+              text: "",
+              unread: 0,
+            },
+          });
+
+          await updateDoc(doc(db, "userChats", userInfo.id), {
             [mixedId + ".userInfo"]: doc(db, "users", id),
             [mixedId + ".date"]: serverTimestamp(),
-          }));
-      } else {
-        const chatData = res.data();
+            [mixedId + ".lastMessage"]: {
+              text: "",
+              unread: 0,
+            },
+          });
+        } else {
+          const chatData = res.data();
+          const userChatsData = (await getDoc(doc(db, "userChats", id))).data();
+          const { messages } = chatData;
 
-        const { messages } = chatData;
+          userChatsData &&
+            (await updateDoc(doc(db, "userChats", id), {
+              [mixedId + ".lastMessage"]: {
+                ...userChatsData[mixedId].lastMessage,
+                unread: 0,
+              },
+            }));
 
-        const timedMessages = messages.map((msg: IMessage) => ({
-          ...msg,
-          date: msg.date instanceof Timestamp ? moment(msg.date.toDate()).fromNow() : msg.date,
-        })); // Timestump.now() to date
+          const timedMessages = messages.map((msg: IMessage) => ({
+            ...msg,
+            date: msg.date instanceof Timestamp ? moment(msg.date.toDate()).fromNow() : msg.date,
+          })); // Timestump.now() to date
 
-        changeMessages({ messages: timedMessages });
+          changeMessages({ messages: timedMessages });
+        }
       }
     } catch (e) {
       console.log(e);
+    } finally {
+      changeFriend(userInfo);
     }
-
-    changeFriend(userInfo);
   };
 
   return (
@@ -68,11 +84,18 @@ const Contact = ({ listData, setOpenChat }: Props) => {
       </ListItemAvatar>
       <ListItemText
         primaryTypographyProps={mainStyles.contactListItemPrm}
-        secondaryTypographyProps={mainStyles.contactListItemScr}
+        secondaryTypographyProps={{
+          ...mainStyles.contactListItemScr,
+          fontWeight: listData?.lastMessage?.unread && "700",
+        }}
         primary={userInfo?.fullName || emailName(userInfo?.email)}
-        secondary={listData?.lastMessage?.text}
+        secondary={listData?.lastMessage?.typing ? "Typing..." : listData?.lastMessage?.text}
       />
-      <Badge sx={mainStyles.costumBadge} color="secondary" badgeContent={0} />
+      <Badge
+        sx={mainStyles.costumBadge}
+        color="secondary"
+        badgeContent={listData?.lastMessage?.unread}
+      />
     </ListItemButton>
   );
 };

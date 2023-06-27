@@ -6,6 +6,7 @@ export const searchUser = async (value: string, setResult: (r: DocumentData[]) =
     collection(db, "users"),
     or(where("fullName", "==", value), where("email", "==", value))
   );
+
   const querySnap = await getDocs(q);
 
   const result: DocumentData[] = [];

@@ -13,21 +13,7 @@ import { useAuthActions } from "@hooks/actionsHook";
 import GoogleAuth from "./GoogleAuth";
 import FacebookAuth from "./FacebookAuth";
 import { useState } from "react";
-
-const inputProps = {
-  sx: {
-    color: "white",
-    bgcolor: "rgba(0,0,0,0.8)",
-    ":hover": {
-      bgcolor: "rgba(0,0,0,0.6)",
-    },
-    ":focus-within": {
-      bgcolor: "rgba(0,0,0,0.5)",
-    },
-    borderRadius: "15px",
-  },
-  disableUnderline: true,
-};
+import { componentsStyles } from "@components/auth_components/styles";
 
 const Signin = () => {
   const [showPass, setShowPass] = useState(false);
@@ -35,8 +21,8 @@ const Signin = () => {
     resolver: yupResolver(signinScheme),
   });
   //prettier-ignore
-  const {handleSubmit,register,formState: { errors }} = formControl;
-  const { setUser } = useAuthActions();
+  const {handleSubmit, register, formState: { errors }} = formControl;
+  const setUser = useAuthActions().setUser;
 
   const onSubmit = async ({ email, password }: ISignin) => {
     try {
@@ -50,13 +36,7 @@ const Signin = () => {
   return (
     <>
       <Container maxWidth="xs" sx={{ display: "flex", alignItems: "center" }}>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
+        <Box sx={componentsStyles.columnCenter}>
           <Avatar sx={{ m: 1, bgcolor: "primary.main" }}>
             <Shield />
           </Avatar>
@@ -84,7 +64,7 @@ const Signin = () => {
               error={!!errors.password}
               helperText={errors.password?.message}
               InputProps={{
-                ...inputProps,
+                ...componentsStyles.signInputProps,
                 endAdornment: (
                   <IconButton onClick={() => setShowPass(!showPass)}>
                     {showPass ? <Visibility /> : <VisibilityOff />}

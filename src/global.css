@@ -8,6 +8,7 @@
 *::-webkit-scrollbar {
     width: 0.375rem;
     background-color: transparent;
+    background: #505050;
 }
 
 *::-webkit-scrollbar-thumb {
