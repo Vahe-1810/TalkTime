@@ -12,6 +12,10 @@ export const setUserCollection = async (user: User) => {
       id: user.uid,
       lastVisit: user?.metadata.lastSignInTime,
       isOnline: true,
+      calling: {
+        isCall: false,
+        meetId: null,
+      },
     });
     setDoc(doc(db, "userChats", user.uid), {});
   } catch (error) {

@@ -2,14 +2,14 @@ import { onAuthStateChanged } from "firebase/auth";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useEffect } from "react";
 import { useAuth } from "@hooks/authHook";
-import { useAuthActions, useContacts } from "@hooks/actionsHook";
+import { useAuthActions, useCall, useContacts } from "@hooks/actionsHook";
 import { toggleUser } from "@utils/settingUser";
 import { auth, db } from "@fb";
 import { CircularProgress } from "@mui/material";
 import Signin from "@components/auth_components/SignIn";
 import Signup from "@components/auth_components/SignUp";
 import Main from "@components/main/Main";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, onSnapshot } from "firebase/firestore";
 import { useTSelector } from "@hooks/typedHooks";
 import { user } from "@store/slicers/authSlice";
 
@@ -29,6 +29,7 @@ const AppRoutes = () => {
   const id = useTSelector(user).currentUser?.id;
   const { setUser } = useAuthActions();
   const changeFriend = useContacts().changeFriend;
+  const { setOpenModal, setMeet } = useCall();
 
   useEffect(() => {
     onAuthStateChanged(auth, user => {
@@ -54,6 +55,20 @@ const AppRoutes = () => {
 
     //eslint-disable-next-line
   }, [isAuth]);
+
+  useEffect(() => {
+    id &&
+      onSnapshot(doc(db, "users", id), snap => {
+        if (snap.exists()) {
+          const { calling } = snap.data();
+          if (calling?.type === "answer") {
+            console.log("enybody called", calling);
+            setMeet(calling);
+            setOpenModal(true);
+          }
+        }
+      });
+  }, [id]);
 
   if (loading) return <CircularProgress variant="indeterminate" size={100} />;
 

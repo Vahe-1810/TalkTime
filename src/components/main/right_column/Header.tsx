@@ -1,4 +1,4 @@
-import { ArrowBack, Call, Delete, MoreVert, Search } from "@mui/icons-material";
+import { ArrowBack, Call, Delete, MoreVert, Search, VideoCall } from "@mui/icons-material";
 import { Avatar, Box, IconButton, useMediaQuery } from "@mui/material";
 import { ListItem, Menu } from "@mui/material";
 import { ListItemAvatar, ListItemText, MenuItem } from "@mui/material";
@@ -13,6 +13,7 @@ import { theme } from "@theme/mui-theme";
 import { doc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "@fb";
 import { useAuth } from "@hooks/authHook";
+import { VIDEO_CALL_URL } from "@constants/common";
 
 const Header = ({ open, setOpen, setOpenChat }: TypeOpen) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -25,6 +26,47 @@ const Header = ({ open, setOpen, setOpenChat }: TypeOpen) => {
   const handleOpen = (e: React.MouseEvent<HTMLButtonElement>) => {
     setAnchor(e.currentTarget);
     setMenuOpen(true);
+  };
+
+  const openInChrome = async (url: string) => {
+    const width = 800;
+    const height = 600;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
+    const options = `width=${width},height=${height},left=${left},top=${top}`;
+    try {
+      await fetch(url + "id", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({ id: mixedId, type: "call" }),
+      }).then(r => {
+        console.log("success!", r);
+      });
+
+      friend &&
+        (await updateDoc(doc(db, "users", friend.id), {
+          calling: {
+            isCall: true,
+            meetId: mixedId,
+            type: "answer",
+          },
+        }));
+
+      id &&
+        (await updateDoc(doc(db, "users", id), {
+          calling: {
+            isCall: true,
+            meetId: mixedId,
+            type: "call",
+          },
+        }));
+
+      window.open("https://video-call-a4a57.web.app/", "_blank", options);
+    } catch (error) {
+      console.error("Failed to post user ID:", error);
+    }
   };
 
   const handleClose = () => {
@@ -108,11 +150,21 @@ const Header = ({ open, setOpen, setOpenChat }: TypeOpen) => {
             <MenuItem onClick={handleClearChat}>
               <Delete /> Clear chat
             </MenuItem>
+            <MenuItem onClick={() => openInChrome(VIDEO_CALL_URL)}>
+              <VideoCall />
+              Video call
+            </MenuItem>
           </div>
         ) : (
-          <MenuItem onClick={handleClearChat}>
-            <Delete /> Clear chat
-          </MenuItem>
+          <div>
+            <MenuItem onClick={handleClearChat}>
+              <Delete /> Clear chat
+            </MenuItem>
+            <MenuItem onClick={() => openInChrome(VIDEO_CALL_URL)}>
+              <VideoCall />
+              Video call
+            </MenuItem>
+          </div>
         )}
       </Menu>
     </>
