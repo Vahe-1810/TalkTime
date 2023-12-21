@@ -7,7 +7,7 @@ import { joinToCall } from "@utils/joinToCall";
 
 type Props = {
   open: boolean;
-  setOpenVideo: (b: boolean) => void;
+  setOpenVideo: (val: boolean) => void;
 };
 
 const VideoCallModal = ({}: Props) => {

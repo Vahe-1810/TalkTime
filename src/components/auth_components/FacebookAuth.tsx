@@ -31,7 +31,7 @@ const FacebookAuth = () => {
       }}
       variant="outlined"
     >
-      <Typography variant="h6"> Facebook</Typography>
+      <Typography variant="h6">Facebook</Typography>
     </Button>
   );
 };
