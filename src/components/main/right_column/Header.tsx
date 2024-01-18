@@ -20,7 +20,7 @@ const Header = ({ open, setOpen, setOpenChat }: TypeOpen) => {
   const [anchor, setAnchor] = useState<null | HTMLElement>(null);
   const friend = useTSelector(messageState).currentFriendInfo;
   const phoneSize = useMediaQuery(theme.breakpoints.down("sm"));
-  const { id } = useAuth();
+  const { id, photoURL, fullName } = useAuth();
   const mixedId = friend && [id, friend.id].sort().join("");
 
   const handleOpen = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -41,18 +41,23 @@ const Header = ({ open, setOpen, setOpenChat }: TypeOpen) => {
           "Content-type": "application/json",
         },
         body: JSON.stringify({ id: mixedId, type: "call" }),
-      }).then(r => {
-        console.log("success!", r);
+      }).then(() => {
+        console.log("success!");
       });
 
-      friend &&
-        (await updateDoc(doc(db, "users", friend.id), {
-          calling: {
-            isCall: true,
-            meetId: mixedId,
-            type: "answer",
-          },
-        }));
+      setTimeout(async () => {
+        friend &&
+          (await updateDoc(doc(db, "users", friend.id), {
+            calling: {
+              isCall: true,
+              meetId: mixedId,
+              type: "answer",
+              caller: photoURL,
+              fullName,
+              id,
+            },
+          }));
+      }, 2500);
 
       id &&
         (await updateDoc(doc(db, "users", id), {
@@ -60,10 +65,41 @@ const Header = ({ open, setOpen, setOpenChat }: TypeOpen) => {
             isCall: true,
             meetId: mixedId,
             type: "call",
+            caller: null,
+            fullName: friend?.fullName,
+            id: friend?.id,
           },
         }));
 
-      window.open("https://video-call-a4a57.web.app/", "_blank", options);
+      const vdWind = window.open("https://video-call-a4a57.web.app/", "_blank", options);
+
+      const listenerFn = async () => {
+        if (vdWind?.closed) {
+          window.removeEventListener("mousemove", listenerFn);
+
+          friend &&
+            (await updateDoc(doc(db, "users", friend.id), {
+              calling: {
+                isCall: false,
+                meetId: null,
+                type: null,
+                caller: null,
+              },
+            }));
+
+          id &&
+            (await updateDoc(doc(db, "users", id), {
+              calling: {
+                isCall: false,
+                meetId: null,
+                type: null,
+                caller: null,
+              },
+            }));
+        }
+      };
+
+      window.addEventListener("mousemove", listenerFn);
     } catch (error) {
       console.error("Failed to post user ID:", error);
     }

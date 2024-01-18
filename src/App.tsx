@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect } from "react";
 import AppRoutes from "./AppRoutes";
 import VerifingDialog from "@shared/VerifingDialog";
 import { useAuthActions } from "@hooks/actionsHook";
@@ -8,7 +8,6 @@ import VideoCallModal from "@components/call_components/VideoCallModal";
 const App: FC = () => {
   const { setVerifing } = useAuthActions();
   const { isAuth, id } = useAuth();
-  const [openVideo, setOpenVideo] = useState(false);
 
   useEffect(() => {
     if (!isAuth && id) setVerifing(true);
@@ -20,7 +19,7 @@ const App: FC = () => {
         <AppRoutes />
         <VerifingDialog />
       </div>
-      <VideoCallModal open={openVideo} setOpenVideo={setOpenVideo} />
+      <VideoCallModal />
     </>
   );
 };

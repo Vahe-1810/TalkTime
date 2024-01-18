@@ -62,9 +62,10 @@ const AppRoutes = () => {
         if (snap.exists()) {
           const { calling } = snap.data();
           if (calling?.type === "answer") {
-            console.log("enybody called", calling);
             setMeet(calling);
             setOpenModal(true);
+          } else {
+            setOpenModal(false);
           }
         }
       });

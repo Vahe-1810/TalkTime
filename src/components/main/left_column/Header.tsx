@@ -4,10 +4,10 @@ import { Box, TextField, Menu, Typography } from "@mui/material";
 import { mainStyles } from "../styles";
 import { useState } from "react";
 import { signOut } from "firebase/auth";
-import { auth } from "@fb";
+import { auth, db } from "@fb";
 import { useAuth } from "@hooks/authHook";
 import { searchUser } from "@utils/searchUser";
-import { DocumentData } from "firebase/firestore";
+import { DocumentData, doc, updateDoc } from "firebase/firestore";
 
 const inputProps = {
   style: {
@@ -25,7 +25,7 @@ type Props = {
 const Header = ({ setPeople, setOpenDrawer }: Props) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [open, setOpen] = useState(false);
-  const { photoURL, fullName, email } = useAuth();
+  const { photoURL, fullName, email, id } = useAuth();
   const [searchValue, setSearchValue] = useState("");
 
   const menuOpen = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -87,7 +87,17 @@ const Header = ({ setPeople, setOpenDrawer }: Props) => {
         >
           <Settings /> Settings
         </MenuItem>
-        <MenuItem sx={mainStyles.menuItem} onClick={() => signOut(auth)}>
+        <MenuItem
+          sx={mainStyles.menuItem}
+          onClick={() =>
+            signOut(auth).then(() => {
+              id &&
+                updateDoc(doc(db, "users", id), {
+                  isOnline: false,
+                });
+            })
+          }
+        >
           <ExitToApp /> Sign Out
         </MenuItem>
       </Menu>

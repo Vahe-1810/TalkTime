@@ -1,7 +1,11 @@
 import { Box, Divider, IconButton, TextField, Typography } from "@mui/material";
 import { Avatar, Container, Button, Grid } from "@mui/material";
 import { Shield, Visibility, VisibilityOff } from "@mui/icons-material";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  browserSessionPersistence,
+  setPersistence,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { auth } from "@fb";
@@ -24,13 +28,13 @@ const Signin = () => {
   const {handleSubmit, register, formState: { errors }} = formControl;
   const setUser = useAuthActions().setUser;
 
-  const onSubmit = async ({ email, password }: ISignin) => {
-    try {
-      const { user } = await signInWithEmailAndPassword(auth, email, password);
-      setUser(toggleUser(user));
-    } catch (error) {
-      console.error(error);
-    }
+  const onSubmit = ({ email, password }: ISignin) => {
+    setPersistence(auth, browserSessionPersistence)
+      .then(() => signInWithEmailAndPassword(auth, email, password))
+      .then(({ user }) => {
+        setUser(toggleUser(user));
+      })
+      .catch(console.log);
   };
 
   return (

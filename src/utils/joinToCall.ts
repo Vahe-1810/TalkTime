@@ -1,12 +1,11 @@
 import { VIDEO_CALL_URL } from "@constants/common";
+import { db } from "@fb";
+import { IMeet } from "@tps/type";
+import { doc, updateDoc } from "firebase/firestore";
 
-type TypeData = {
-  isCall: boolean;
-  meetId: string;
-};
+export const joinToCall = async ({ meetId, id }: IMeet) => {
+  const myid = meetId?.split(id)[0];
 
-export const joinToCall = async ({ meetId }: TypeData) => {
-  console.log(meetId);
   const width = 800;
   const height = 600;
   const left = window.screen.width / 2 - width / 2;
@@ -26,6 +25,31 @@ export const joinToCall = async ({ meetId }: TypeData) => {
   } catch (error) {
     console.log(error);
   }
+  const wnd = window.open("https://video-call-a4a57.web.app/", "_blank", options);
 
-  window.open("https://video-call-a4a57.web.app/", "_blank", options);
+  const clearCall = async () => {
+    if (wnd && wnd.closed && id && myid) {
+      await updateDoc(doc(db, "users", id), {
+        calling: {
+          isCall: false,
+          meetId: null,
+          type: null,
+          caller: null,
+        },
+      });
+
+      await updateDoc(doc(db, "users", myid), {
+        calling: {
+          isCall: false,
+          meetId: null,
+          type: null,
+          caller: null,
+        },
+      });
+
+      window.removeEventListener("message", clearCall);
+    }
+  };
+
+  window.addEventListener("message", clearCall);
 };

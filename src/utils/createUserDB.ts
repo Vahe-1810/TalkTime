@@ -15,6 +15,8 @@ export const setUserCollection = async (user: User) => {
       calling: {
         isCall: false,
         meetId: null,
+        type: null,
+        caller: null,
       },
     });
     setDoc(doc(db, "userChats", user.uid), {});

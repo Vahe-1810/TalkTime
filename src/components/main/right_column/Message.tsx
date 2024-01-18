@@ -1,3 +1,4 @@
+import { MISSED_CALL } from "@constants/common";
 import { Paper, Typography } from "@mui/material";
 import { styled } from "@mui/system";
 
@@ -15,6 +16,8 @@ const MessagePaper = styled(Paper)(({ theme }) => ({
 }));
 
 const Message = ({ text, sender, date }: TypeMessage) => {
+  const isCall = text === MISSED_CALL;
+
   return (
     <MessagePaper
       sx={{
@@ -22,12 +25,13 @@ const Message = ({ text, sender, date }: TypeMessage) => {
         wordBreak: "break-all",
         display: "flex",
         flexDirection: "column",
+        bgcolor: isCall ? "#5d18a2" : "",
       }}
     >
       <Typography variant="body1" sx={{ fontWeight: 700 }}>
         {text}
       </Typography>
-      <Typography variant="subtitle2" sx={{ fontWeight: 700, alignSelf: "flex-end" }}>
+      <Typography sx={{ fontWeight: 700, alignSelf: "flex-end", fontSize: 10, color: "darkgray" }}>
         {date}
       </Typography>
     </MessagePaper>

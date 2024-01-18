@@ -10,6 +10,7 @@ import { IMessage } from "@tps/type";
 import { useAuth } from "@hooks/authHook";
 import { db } from "@fb";
 import { CostumBadge } from "@shared/CostumBadge";
+import { useTSelector } from "@hooks/typedHooks";
 
 type Props = {
   listData: DocumentData;
@@ -20,6 +21,10 @@ const Contact = ({ listData, setOpenChat }: Props) => {
   const { changeFriend, changeMessages } = useContacts();
   const { userInfo } = listData;
   const { id } = useAuth();
+  const friendId = useTSelector(state => state.message.currentFriendInfo?.id);
+  const isSelected = userInfo.id === friendId;
+
+  console.log(friendId, userInfo.id);
 
   const handleSelect = async () => {
     const mixedId = [id, userInfo.id].sort().join("");
@@ -79,7 +84,11 @@ const Contact = ({ listData, setOpenChat }: Props) => {
   };
 
   return (
-    <ListItemButton key={userInfo?.id} sx={mainStyles.contactListItem} onClick={handleSelect}>
+    <ListItemButton
+      key={userInfo?.id}
+      sx={[mainStyles.contactListItem, { bgcolor: isSelected ? "rgba(0,0,0,0.2)" : "" }]}
+      onClick={handleSelect}
+    >
       <ListItemAvatar>
         <CostumBadge
           overlap="circular"

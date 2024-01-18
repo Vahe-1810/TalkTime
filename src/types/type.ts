@@ -62,6 +62,9 @@ export interface IMessage {
 
 export interface IMeet {
   isCall: boolean;
-  meetId: string;
-  type: string;
+  meetId: string | null;
+  type: string | null;
+  caller: string | null;
+  fullName: string;
+  id: string;
 }
