@@ -27,18 +27,17 @@ const Contacts = ({ people, setOpenChat }: Props) => {
   return (
     <Paper sx={mainStyles.paper}>
       <List>
-        {!!people?.length &&
-          people.map(
-            person =>
-              id &&
-              person.id !== id &&
-              !ids.includes(person.id) && (
-                <Fragment key={person.id}>
-                  <Contact listData={{ userInfo: person }} setOpenChat={setOpenChat} />
-                  <Divider />
-                </Fragment>
-              )
-          )}
+        {people?.map(
+          person =>
+            id &&
+            person.id !== id &&
+            !ids.includes(person.id) && (
+              <Fragment key={person.id}>
+                <Contact listData={{ userInfo: person }} setOpenChat={setOpenChat} />
+                <Divider />
+              </Fragment>
+            )
+        )}
         {sortedContacts.map((cnt, i) => {
           return <Contact key={i} listData={cnt} setOpenChat={setOpenChat} />;
         })}

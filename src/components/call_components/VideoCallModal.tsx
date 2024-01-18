@@ -9,7 +9,12 @@ import { callState } from "@store/slicers/callSlice";
 import { joinToCall } from "@utils/joinToCall";
 import { Timestamp, arrayUnion, doc, updateDoc } from "firebase/firestore";
 
-const VideoCallModal = () => {
+type Props = {
+  open: boolean;
+  setOpenVideo: (val: boolean) => void;
+};
+
+const VideoCallModal = ({}: Props) => {
   const { setOpenModal } = useCall();
   const { openModal, calling } = useTSelector(callState);
   const id = useAuth().id;

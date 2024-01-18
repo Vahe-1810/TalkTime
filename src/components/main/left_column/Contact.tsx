@@ -12,12 +12,12 @@ import { db } from "@fb";
 import { CostumBadge } from "@shared/CostumBadge";
 import { useTSelector } from "@hooks/typedHooks";
 
-type Props = {
+interface IContact {
   listData: DocumentData;
-  setOpenChat: (t: boolean) => void;
-};
+  setOpenChat: (val: boolean) => void;
+}
 
-const Contact = ({ listData, setOpenChat }: Props) => {
+const Contact = ({ listData, setOpenChat }: IContact) => {
   const { changeFriend, changeMessages } = useContacts();
   const { userInfo } = listData;
   const { id } = useAuth();
@@ -27,7 +27,8 @@ const Contact = ({ listData, setOpenChat }: Props) => {
   console.log(friendId, userInfo.id);
 
   const handleSelect = async () => {
-    const mixedId = [id, userInfo.id].sort().join("");
+    const { id: userId } = userInfo;
+    const mixedId = [id, userId].sort().join("");
     try {
       const res = await getDoc(doc(db, "chats", mixedId));
 
@@ -39,7 +40,7 @@ const Contact = ({ listData, setOpenChat }: Props) => {
           });
 
           await updateDoc(doc(db, "userChats", id), {
-            [mixedId + ".userInfo"]: doc(db, "users", userInfo.id),
+            [`${mixedId}.userInfo`]: doc(db, "users", userId),
             [mixedId + ".date"]: serverTimestamp(),
             [mixedId + ".lastMessage"]: {
               text: "",
@@ -47,7 +48,7 @@ const Contact = ({ listData, setOpenChat }: Props) => {
             },
           });
 
-          await updateDoc(doc(db, "userChats", userInfo.id), {
+          await updateDoc(doc(db, "userChats", userId), {
             [mixedId + ".userInfo"]: doc(db, "users", id),
             [mixedId + ".date"]: serverTimestamp(),
             [mixedId + ".lastMessage"]: {
