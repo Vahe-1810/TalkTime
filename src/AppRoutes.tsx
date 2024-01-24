@@ -42,7 +42,6 @@ const AppRoutes = () => {
 
       if (!user) {
         changeFriend(null);
-        console.log(id);
 
         if (id) {
           updateDoc(doc(db, "users", id), {

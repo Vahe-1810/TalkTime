@@ -24,8 +24,6 @@ const Contact = ({ listData, setOpenChat }: IContact) => {
   const friendId = useTSelector(state => state.message.currentFriendInfo?.id);
   const isSelected = userInfo.id === friendId;
 
-  console.log(friendId, userInfo.id);
-
   const handleSelect = async () => {
     const { id: userId } = userInfo;
     const mixedId = [id, userId].sort().join("");
