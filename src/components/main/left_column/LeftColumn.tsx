@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { DocumentData, doc, onSnapshot } from "firebase/firestore";
+import {
+  DocumentData,
+  Timestamp,
+  doc,
+  getDoc,
+  onSnapshot,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { Box, Drawer, useMediaQuery } from "@mui/material";
 import { theme } from "@theme/mui-theme";
 import { useContacts } from "@hooks/actionsHook";
@@ -9,6 +18,9 @@ import { mainStyles } from "../styles";
 import Settings from "./settings/Settings";
 import Contacts from "./Contacts";
 import Header from "./Header";
+import moment from "moment";
+import { IMessage } from "@tps/type";
+import { changeMessages } from "@store/slicers/messageSlice";
 
 type Props = {
   setOpenChat: (T: boolean) => void;
@@ -23,10 +35,54 @@ const LeftColumn = ({ setOpenChat, openChat }: Props) => {
   const isPhone = useMediaQuery(theme.breakpoints.down("sm"));
   const { fetchContacts } = useContacts();
   const { id } = useAuth();
+  const mixedId = [id, "test"].sort().join("");
 
   const handleDrawerClose = () => {
     setOpenDrawer(false);
   };
+
+  useEffect(() => {
+    const getTestUser = async () => {
+      const res = await getDoc(doc(db, "chats", mixedId));
+      if (res.exists()) return;
+      await setDoc(doc(db, "chats", mixedId), {
+        messages: [],
+      });
+
+      await updateDoc(doc(db, "userChats", id!), {
+        [`${mixedId}.userInfo`]: doc(db, "users", "test"),
+        [mixedId + ".date"]: serverTimestamp(),
+        [mixedId + ".lastMessage"]: {
+          text: "",
+          unread: 0,
+        },
+      });
+
+      const chatData = res.data();
+      const userChatsData = (await getDoc(doc(db, "userChats", id!))).data();
+
+      if (res.exists()) {
+        const { messages } = chatData!;
+        userChatsData &&
+          (await updateDoc(doc(db, "userChats", id!), {
+            [mixedId + ".lastMessage"]: {
+              ...userChatsData[mixedId].lastMessage,
+              unread: 0,
+            },
+          }));
+
+        const timedMessages = messages.map((msg: IMessage) => ({
+          ...msg,
+          date: msg.date instanceof Timestamp ? moment(msg.date.toDate()).fromNow() : msg.date,
+        })); // Timestump.now() to date
+
+        changeMessages({ messages: timedMessages });
+      }
+    };
+    if (id) {
+      getTestUser();
+    }
+  }, [id]);
 
   useEffect(() => {
     if (id) {
